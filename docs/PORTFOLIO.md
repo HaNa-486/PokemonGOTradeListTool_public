@@ -1,6 +1,10 @@
 # Portfolio walkthrough
 
-This project demonstrates how a small product can treat permissions, concurrent inventory, and human confirmation as first-class requirements. The fictional catalog keeps the public example independently reviewable without redistributing a real game's data.
+Trade Ledger helps Pokemon GO groups share offers and wishlists, arrange two-way exchanges, and track what is still available. One listing can appear in several private groups, but it must retain one quantity and one exchange history.
+
+This walkthrough connects that product problem to three code-review questions: how shared stock stays consistent, how competing writes and retries behave, and how agreement survives revisions and partial completion. The community demo uses six original fictional species and the actual application API; real-provider login remains separately unverified.
+
+For a quick review, start with the [product example and design choices](../README.md#engineering-decisions), then follow the [code-review conversations](#three-code-review-conversations) below. To evaluate the product hands-on, use the local walkthrough.
 
 ## Local walkthrough
 

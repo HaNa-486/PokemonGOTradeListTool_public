@@ -26,3 +26,9 @@ Implementation commit 2fbc2a5d5912e292cb1665abd010f37647a16757 passed [GitHub CI
 The implementation is suitable for owner review as an open-source source release, with the documented deployment limits. The repository remains private. Changing GitHub visibility requires a separate owner confirmation; that does not authorize publishing any website.
 
 Screenshot regeneration is opt-in: set UPDATE_PORTFOLIO_SCREENSHOTS=1 when running npm run demo:qa. Ordinary local/CI runs write screenshots to ignored test-results/, leaving the reviewed portfolio images unchanged.
+
+## README review (2026-10-28)
+
+The English and Traditional Chinese READMEs were reviewed independently for hiring-reader clarity and against source behavior. The documentation now leads with the Pokemon GO use case, a concrete shared-stock example, four linked design decisions and their costs, and a safe first exchange using explicitly tradable demo entries. Review corrected the proposal-edit boundary (before reservation) and the distinction between reservation quantities and separate completion records.
+
+Static checks covered 64 relative links/images, 25 npm-script references, heading targets, and matching shell-command blocks/section counts across both languages. Content and reachable-history guards passed. These were documentation-only edits; local business/browser suites were not rerun for this review. The existing application baseline above remains the recorded functional evidence; exact-commit hosted runs are on the [Actions page](https://github.com/HaNa-486/PokemonGOTradeListTool_public/actions/workflows/ci.yml).

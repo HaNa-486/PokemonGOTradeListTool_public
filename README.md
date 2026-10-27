@@ -1,114 +1,153 @@
-# 交換帳本 · Trade Ledger
+# Trade Ledger · 交換帳本
 
-**A multi-user exchange ledger with private circles, shared inventory, and consent-based settlement.**
+**A full-stack trade planner originally built for Pokémon GO communities.**
 
-[繁體中文](README.zh-TW.md) · [Architecture](docs/ARCHITECTURE.md) · [Portfolio walkthrough](docs/PORTFOLIO.md) · [Verification](docs/VERIFICATION.md)
+Share what you can offer and what you want, browse friends' lists, and arrange two-way trades in private groups. Trade Ledger keeps track of what is available, what has been promised, and what has actually been exchanged—even when the same listing is shared with several groups.
 
-Trade planning becomes difficult when one item is shared across several groups, two people reserve the last available unit, or an exchange completes in stages. Trade Ledger models those situations explicitly: a single inventory record, versioned proposals, atomic reservations, and an auditable confirmation process.
+[繁體中文](README.zh-TW.md) · [Try locally](#try-it-locally) · [Engineering decisions](#engineering-decisions) · [Code walkthrough](docs/PORTFOLIO.md) · [CI results](https://github.com/HaNa-486/PokemonGOTradeListTool_public/actions/workflows/ci.yml)
 
-This repository is the independently runnable portfolio and community edition. It ships **six original, fictional catalog entries and synthetic demo accounts**. It does not ship a real game's catalog, mined translations, artwork, private user data, or a production deployment binding.
+## The problem it solves
 
-## See it locally
+A list in a chat or spreadsheet tells people what you have. Coordinating a trade also means answering: **Has someone already reserved it? Did both people accept the latest proposal? How much of the exchange is complete?**
 
-The demo uses the actual application API and a persistent, SQLite-backed local D1 database. Two isolated browser contexts represent two synthetic users. Seeded sessions make that local walkthrough possible; they do **not** demonstrate real OAuth or add a production login bypass.
+For example, a player offers three items across two groups. Reserving two in one group must leave only one available in both:
+
+| Step | Held | Reserved | Available across both groups |
+|---|---:|---:|---:|
+| Share one listing with two groups | 3 | 0 | 3 |
+| Agree to trade two items | 3 | 2 | 1 |
+| Confirm delivery of one item | 2 | 1 | 1 |
+
+The application records and coordinates exchanges people arrange themselves. It does not connect to game accounts or execute in-game trades.
+
+## What you can do
+
+**List → browse or match → propose → both agree → reserve → report and confirm.**
+
+- **Organize private trading groups:** invite and approve members, share the same supply/demand records across circles, and grant scoped management access.
+- **Find and propose exchanges:** browse a member's full shared list or use condition-aware matching. You can offer something even when the recipient has not posted a matching request.
+- **Track a trade through completion:** revise both sides of a proposal, reserve stock after agreement, complete it in batches, and record corrections.
+- **Control your view and recover data:** personal hide/restore is separate from circle-wide moderation; personal export/import and maintenance backup tools have their own access rules.
+
+The interface is primarily **Traditional Chinese**, with phone layouts, distinct offer/request modes, and system/light/dark themes.
 
 <p>
-  <img src="docs/screenshots/demo-mobile.png" width="260" alt="Trade Ledger mobile demo using fictional catalog entries" />
-  <img src="docs/screenshots/demo-desktop.png" width="640" alt="Trade Ledger desktop demo using synthetic accounts" />
+  <img src="docs/screenshots/demo-mobile.png" width="260" alt="Phone-sized offer editor showing a fictional catalog entry and its conditions" />
+  <img src="docs/screenshots/demo-desktop.png" width="640" alt="Desktop member list showing shared offers in a synthetic private group" />
 </p>
 
-No public hosted demo is promised. Screenshots and the local walkthrough use synthetic data; verification scope is recorded in [VERIFICATION.md](docs/VERIFICATION.md).
+The community edition includes **six original fictional species** for a reproducible local demo. Screenshots use those entries and synthetic accounts. Real game catalogs and artwork are not bundled.
 
-## Quick start
+## Engineering decisions
 
-Prerequisites: **Node.js 24, npm, Python 3.12, and Git**. The first dependency and browser installation may take several minutes. The local demo does not require a cloud account or OAuth credentials.
+| Problem | Design choice and reason | Inspect the implementation |
+|---|---|---|
+| The same stock appears in several groups. | **One listing, many visibility shares.** Quantity and progress belong to one record; sharing never creates a second inventory. | [Model](core/model.ts) · [Persistence](core/store.ts) · [Ledger tests](tests/ledger.test.ts) |
+| Two requests compete for the last unit, or a client retries. | **Atomic commands with content-bound retry receipts.** An epoch/version check and SQL CHECK guard protect one D1 batch containing the ledger changes, audit and receipt. Failure rolls back the batch; a repeated request cannot deduct twice or reuse its key for different content. | [Command gate](core/store.ts) · [Local D1 tests](tests/d1.test.ts) |
+| A proposal changes before reservation, or a trade completes in stages. | **Consent belongs to a proposal revision.** Edits reset agreement. Reserved quantities, completion batches and corrections are tracked explicitly, so users can see what was agreed and what changed. | [Trade rules](core/service.ts) · [Completion tests](tests/ledger.test.ts) |
+| Private groups overlap and members have different powers. | **Authorize on the server, then project the response for that viewer.** Current permissions apply to both new and replayed commands; responses omit unauthorized circle references. | [API](server/api.ts) · [Replay checks](core/replay.ts) · [Response projection](server/projection.ts) |
+
+These choices have costs. The **global epoch creates write contention**; it favors a small, testable consistency mechanism over maximum throughput. Explicit agreement adds steps to the user flow. Viewer-specific responses also require permission-aware tests. These are deliberate tradeoffs, not a claim of internet-scale capacity.
+
+Domain details matter too: **unknown, absent, false and unrestricted are different states**. An unspecified form or shiny condition must not silently merge with a known normal item. See [architecture and tradeoffs](docs/ARCHITECTURE.md) for the full model.
+
+## Stack and request path
+
+- **UI:** React, TypeScript and Tailwind CSS.
+- **Application runtime:** Vinext/Vite on a Worker, with server-side API and authentication adapters.
+- **Data:** Cloudflare D1; SQLite-backed local D1 for the demo; Drizzle schema/migrations and Zod validation.
+- **Verification:** Node tests, local D1 integration tests, Playwright browser journeys, Python repository checks and GitHub Actions.
+
+```mermaid
+flowchart LR
+    UI[React UI] --> API[Identity and server authorization]
+    API --> Rules[Trade rules]
+    Rules --> Gate[Atomic command gate]
+    Gate --> DB[(D1 / local SQLite)]
+    DB --> View[Viewer-specific response]
+    View --> UI
+```
+
+Business records live in the backend database. Browser storage is used for preferences and unsent drafts. Updates are polled while the app is active.
+
+## Try it locally
+
+Use **Node.js 24, npm and Git**; contributor checks also use **Python 3.12**. No cloud account or OAuth credentials are needed for the local demo.
 
 ```sh
 git clone https://github.com/HaNa-486/PokemonGOTradeListTool_public.git
 cd PokemonGOTradeListTool_public
 npm ci
 npx playwright install chromium
-npm run typecheck
-npm test
 npm run build
 npm run demo:setup
 ```
 
-Keep the local server running in one terminal:
+On Linux, use `npx playwright install --with-deps chromium` if Chromium's system libraries are missing. Initial installation can take several minutes.
+
+Start the server in one terminal:
 
 ```sh
 npm run demo:start
 ```
 
-In another terminal:
+In a second terminal, open the two demo users:
 
 ```sh
 npm run demo:open
 ```
 
-The demo opens two browser contexts at `https://127.0.0.1:8787`. Keep that terminal open while using the two windows; press Enter there when you want to close both. Follow the [guided walkthrough](docs/PORTFOLIO.md#local-walkthrough). On Linux, Chromium may require additional operating-system libraries; install them using Playwright's documented browser requirements for your distribution.
+This opens **Alex · 示範甲** and **River · 示範乙** in isolated browser contexts at `https://127.0.0.1:8787`. Keep both terminals running; pressing Enter in the second closes the browser windows.
 
-`demo:setup` is a one-time step for a fresh checkout: it refuses **any existing demo state or session file**. It creates two sessions valid for 24 hours, not pre-populated circles or inventory. To resume during that period, run only `demo:start` and `demo:open`. See the deployment guide for expired-session recovery; do not bypass checks or point it at a real database. Ordinary browsers without a seeded session remain signed out. See [deployment and local setup](docs/DEPLOYMENT.md) for details.
+**Your first exchange:**
 
-## What is implemented
+1. In Alex's window, create a circle under **圈子**, then create an invitation. Open the link in River's already signed-in window and request to join; Alex approves.
+2. In each account, choose **新增供需 → 我可提供**. Alex adds `10001` 紙翼 / Paperwing; River adds `10002` 燈芽 / Lamplume. Use the standard form, no costume, and quantity **3** each. Check the circle under **分享範圍**.
+3. Browse the other member's list, choose **向他主動提案**, and propose **2** items from each side. Once both agree, each listing has 2 reserved and 1 available.
+4. Report **1** item in each direction, then confirm that batch from the other account. Each listing now has 2 held, 1 reserved and 1 available.
 
-| Area | Behavior | Boundary |
-|---|---|---|
-| Private circles | Invitations, membership approval, roles, scoped delegation | Server authorization is required on every operation |
-| Supply and demand | Exact conditions, sharing, search, member browsing | Sharing uses the same listing ID and quantity across circles |
-| Matching and proposals | Condition-aware matching and unsolicited bilateral proposals | A recipient does not need an existing demand record |
-| Reservations | Both parties accept the same proposal revision | A change resets consent; insufficient quantity fails the whole operation |
-| Settlement | Partial reporting, confirmation, correction, retained history | A report alone does not silently deduct stock |
-| Visibility | Personal hide/restore and separate circle moderation | Administrator removal is explicitly circle-wide |
-| Recovery | Personal export, validated import, restricted full backup and isolated restore | Local restore is not a production disaster-recovery guarantee |
-| Presentation | Mobile layouts, supply/demand distinction, system/light/dark themes | Physical-device and assistive-technology acceptance remain separate work |
-| Authentication | Sites identity adapter and Google OIDC implementation | Real credentials and deployed trust boundaries require independent validation |
+The [step-by-step walkthrough](docs/PORTFOLIO.md#local-walkthrough) includes exact quantities and expected results.
 
-The UI is primarily Traditional Chinese. It retains domain-specific vocabulary from its original exchange use case, while the bundled catalog is entirely fictional.
+Setup creates users only—no circles or inventory—and refuses existing demo state. Sessions last **24 hours**; within that period, resume with `demo:start` and `demo:open`, without repeating setup. For expired sessions or troubleshooting, follow [local setup and recovery](docs/DEPLOYMENT.md).
 
-## Engineering decisions
+The demo uses the actual API and persistent local D1 with seeded test sessions. It validates the business workflow, **not real Google/ChatGPT login**. Hosting and real authentication require separate configuration and verification; see [deployment](docs/DEPLOYMENT.md).
 
-- **One inventory record, many audiences.** Sharing changes visibility, not stock ownership or quantity.
-- **Atomic business commands.** An epoch check and SQL CHECK guard protect a D1 batch containing entities, shares, audit events, and idempotency receipts. A failed precondition rolls the batch back.
-- **Content-bound retries.** Reusing an idempotency key with a different payload fails; a replay also rechecks current authorization.
-- **Explicit unknown values.** UNKNOWN, NONE, false, and ANY are different states. Exact merging does not silently broaden conditions.
-- **Consent survives only the agreed revision.** Partial completion and corrections remain explicit records rather than overwriting history.
+## Verification and current limits
 
-```mermaid
-flowchart LR
-    UI[React mobile UI] --> API[Identity and authorized API]
-    API --> Rules[Domain commands]
-    Rules --> Gate[Epoch + version + idempotency gate]
-    Gate --> DB[(D1 / local SQLite)]
-    DB --> View[Actor-specific projection]
-    View --> UI
-```
+The recorded baseline passed **68 application tests, 20 sync/publication tests and 8 repository-guard tests**, plus two Chromium journeys against local D1. The journeys cover bilateral trade revision, reservation, partial completion and visibility recovery. Editor checks use widths 360, 390, 430, 768 and 1280 in light/dark modes. See the [verification record](docs/VERIFICATION.md) and [actual CI runs](https://github.com/HaNa-486/PokemonGOTradeListTool_public/actions/workflows/ci.yml).
 
-The single global epoch keeps concurrency behavior understandable but creates write contention. This design has no claimed internet-scale throughput. See [architecture and tradeoffs](docs/ARCHITECTURE.md).
-
-## Development and verification
+To reproduce the contributor checks:
 
 ```sh
 npm run check:repository
 npm run test:repository
-python scripts/check-public-content.py --history
+npm run check:public
+npm run test:public
 npm run typecheck
 npm test
 npm run build
 ```
 
-After a build and one-time demo setup, `npm run demo:ci` starts its own loopback server, runs both synthetic browser journeys, and closes the processes it started. Stop any existing demo server first; port 8787 must be free. If you already have `demo:start` running, `npm run demo:qa` runs the exchange journey against that server. The [CI workflow](.github/workflows/ci.yml) verifies source and dependencies without deploying, reading cloud data, or using production secrets. A workflow file or a local pass does not prove that a hosted CI run passed; see the [verification record](docs/VERIFICATION.md).
+After a build and one-time demo setup, stop any running demo server and run `npm run demo:ci`. It starts its own loopback server on port 8787, runs both browser journeys, and shuts that server down. With an existing `demo:start` server, `npm run demo:qa` runs the exchange journey only. CI does not deploy or use production secrets.
 
-Known remaining work includes real-provider login and deployment verification, safe cross-provider account linking, physical-device/accessibility acceptance, production capacity, and a production recovery rehearsal. There is no independent persisted plan `draft`/`disputed` state, and complementary matching does not compute every unloaded page at once.
+**Remaining work:**
 
-## Contribute and reuse
+- Real-provider login, deployed authentication boundaries and two real cloud users still need acceptance testing. Safe cross-provider account linking is not implemented.
+- Physical-device and accessibility testing, production capacity and production disaster recovery remain unverified.
+- Independent persisted plan `draft`/`disputed` states are not implemented; complementary matching does not compute every unloaded page at once.
 
-[CONTRIBUTING.md](CONTRIBUTING.md) explains focused changes, tests, and review expectations. Report vulnerabilities through the private process in [SECURITY.md](SECURITY.md), not a public issue containing credentials or private data.
+## Use, contribute or extend
 
-Original application code, documentation, tests, and the fictional demo catalog are licensed under [MIT](LICENSE). Third-party notices remain in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). MIT does not grant rights to third-party trademarks or game assets. Custom catalogs must have their own documented rights and provenance. Catalog ID, version, kind, schema version, and content hash are bound to the ledger; even a normal content update needs a controlled migration or a new database. See [DATASETS.md](docs/DATASETS.md).
+- **Try the product:** follow the local walkthrough above. The bundled demo can run without access to the original application.
+- **Contribute:** start with a reproducible bug, clearer documentation, accessibility improvements or a regression test. Read [CONTRIBUTING.md](CONTRIBUTING.md); discuss substantial feature changes in an issue first.
+- **Bring a catalog:** follow [DATASETS.md](docs/DATASETS.md) and document its rights/provenance. A ledger binds to the exact catalog identity and hash; even a catalog update needs a new database or separately reviewed migration.
+- **Operate or maintain it:** use the [deployment](docs/DEPLOYMENT.md), [backup](docs/BACKUP.md) and [source synchronization](docs/SYNC.md) guides.
+- **Report a vulnerability:** use the private process in [SECURITY.md](SECURITY.md).
 
-This is an independent project, not affiliated with or endorsed by Pokémon, Nintendo, Niantic, Scopely, or OpenAI. The repository name reflects the original use case; the public demo contains no real Pokémon dataset.
+## Project ownership and license
 
-Development is AI-assisted: the project owner supplied product requirements, usage feedback, and release decisions; Codex assisted implementation, testing, and documentation. The portfolio emphasizes explainable decisions and reproducible evidence, not claims of entirely handwritten code. Read the [engineering walkthrough](docs/PORTFOLIO.md).
+The owner defined the product needs, supplied usage feedback and made release decisions. Development is AI-assisted: Codex helped with implementation, tests and documentation. The [portfolio walkthrough](docs/PORTFOLIO.md) connects those decisions to code and reproducible scenarios.
 
-[Deployment](docs/DEPLOYMENT.md) · [Backups](docs/BACKUP.md) · [Dataset contract](docs/DATASETS.md) · [Maintenance and synchronization](docs/SYNC.md)
+Original code, documentation, tests and fictional demo data use the [MIT license](LICENSE); third-party components retain their [own notices](THIRD_PARTY_NOTICES.md). MIT does not grant rights to third-party trademarks or game assets.
+
+This is an independent project, not affiliated with or endorsed by Pokémon, Nintendo, Niantic, Scopely or OpenAI. The repository name reflects its original Pokémon GO use case.
