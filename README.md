@@ -97,7 +97,7 @@ npm test
 npm run build
 ```
 
-After preparing and starting the local demo, `npm run demo:qa` exercises the synthetic browser journey. The [CI workflow](.github/workflows/ci.yml) verifies source and dependencies without deploying, reading cloud data, or using production secrets. A workflow file or a local pass does not prove that a hosted CI run passed; see the [verification record](docs/VERIFICATION.md).
+After a build and one-time demo setup, `npm run demo:ci` starts its own loopback server, runs both synthetic browser journeys, and closes the processes it started. Stop any existing demo server first; port 8787 must be free. If you already have `demo:start` running, `npm run demo:qa` runs the exchange journey against that server. The [CI workflow](.github/workflows/ci.yml) verifies source and dependencies without deploying, reading cloud data, or using production secrets. A workflow file or a local pass does not prove that a hosted CI run passed; see the [verification record](docs/VERIFICATION.md).
 
 Known remaining work includes real-provider login and deployment verification, safe cross-provider account linking, physical-device/accessibility acceptance, production capacity, and a production recovery rehearsal. There is no independent persisted plan `draft`/`disputed` state, and complementary matching does not compute every unloaded page at once.
 

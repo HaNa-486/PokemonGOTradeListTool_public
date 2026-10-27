@@ -87,7 +87,7 @@ npm test
 npm run build
 ```
 
-完成 demo 初始化並啟動伺服器後，可執行 `npm run demo:qa` 驗證合成使用者流程。[CI](.github/workflows/ci.yml) 執行程式與依賴檢查，不部署、不取得正式資料，也不使用正式 secrets。流程檔存在或本機通過，都不能當成 GitHub 已通過的證據；實際結果見 [驗證紀錄](docs/VERIFICATION.md)。
+完成建置與一次性的 demo 初始化後，`npm run demo:ci` 會自行啟動本機伺服器、執行兩個合成使用者瀏覽器流程，再關閉自己啟動的程序。先停止既有 demo 伺服器，讓 8787 連接埠保持空閒。若已啟動 `demo:start`，可用 `npm run demo:qa` 在該伺服器驗證交換流程。[CI](.github/workflows/ci.yml) 執行程式與依賴檢查，不部署、不取得正式資料，也不使用正式 secrets。流程檔存在或本機通過，都不能當成 GitHub 已通過的證據；實際結果見 [驗證紀錄](docs/VERIFICATION.md)。
 
 仍待驗證或實作的項目包含真人 provider 登入與正式環境、跨 provider 安全帳號綁定、實體裝置與無障礙、正式容量及災難還原。獨立持久化的計畫 `draft`／`disputed` 狀態尚未實作；互補配對不會一次算出所有未載入頁的完整集合。
 

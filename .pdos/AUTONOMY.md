@@ -3,7 +3,7 @@
 - Policy version: 1
 - Default class: human-only
 - Last approved by: project owner
-- Updated: not yet
+- Updated: 2026-10-28
 
 This policy may restrict PDOS behavior. It never expands authority granted by the current user, platform, sandbox, repository, or external service.
 

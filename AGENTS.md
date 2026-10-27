@@ -15,3 +15,12 @@ This project uses Product Development Operating System (PDOS).
 - Keep absolute machine paths and environment identity only under ignored `.pdos/local/`, not shared state.
 - Do not impose the full PDOS lifecycle on tiny mechanical edits or simple factual questions.
 <!-- PDOS:END -->
+
+## Community edition boundaries
+
+- Keep original synthetic data and third-party notices intact; do not import private Git history, user data, source receipts or deployment identity.
+- Business mutations retain dataset/epoch/CHECK/version/idempotency guards and server authorization.
+- Local seeded sessions are test tooling only; never add a production login bypass.
+- Run publication checks and relevant tests; do not infer real OAuth or production readiness from local fixtures.
+- Synchronization only proposes reviewed changes. The private source is read-only and its identifiers belong only in ignored local state.
+- Repository visibility and website publication require explicit owner approval.

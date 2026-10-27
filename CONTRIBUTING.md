@@ -16,7 +16,7 @@ Trade Ledger welcomes focused fixes, clear bug reports, documentation, accessibi
    npm test
    npm run build
    ```
-5. For interactive behavior, start the local demo and run `npm run demo:qa`; inspect phone-sized and desktop layouts, both themes, keyboard interaction, and failure states.
+5. For interactive behavior, build and prepare the local demo, stop any running demo server, then run `npm run demo:ci` for both browser journeys. It requires port 8787 to be free and manages its own server. With an already running `demo:start`, use `npm run demo:qa` for the exchange journey. Also inspect phone-sized and desktop layouts, both themes, keyboard interaction, and failure states.
 6. Describe the problem, resulting behavior, verification, and remaining limitations in the pull request. Screenshots must use synthetic data and identify simulated devices as simulations.
 
 AI assistance is welcome when the contributor understands and reviews the result. Explain significant design decisions and provide evidence; generated output is not a test result.

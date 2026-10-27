@@ -20,7 +20,9 @@ Scope: the independently versioned community edition, using only its original sy
 - The original application and its repository are outside this delivery and are not modified.
 
 ## Hosted CI
-Pending the first private push. Successful local checks are not presented as hosted CI evidence.
+Implementation commit 2fbc2a5d5912e292cb1665abd010f37647a16757 passed [GitHub CI run 40564384121](https://github.com/HaNa-486/PokemonGOTradeListTool_public/actions/runs/40564384121). This was a fresh Ubuntu checkout: dependency install/audit, content and history guards, 20 sync tests, 8 repository-guard tests, type checking, 68 application tests, build, Chromium installation and both local-D1 browser journeys succeeded. No deployment secrets, cloud data or artifact uploads were used. Subsequent documentation-only commits retain their own checks on the repository Actions page.
 
 ## Publication decision
-The source is being prepared for open-source review. The repository remains private. Changing GitHub visibility requires a separate owner confirmation; that does not authorize publishing any website.
+The implementation is suitable for owner review as an open-source source release, with the documented deployment limits. The repository remains private. Changing GitHub visibility requires a separate owner confirmation; that does not authorize publishing any website.
+
+Screenshot regeneration is opt-in: set UPDATE_PORTFOLIO_SCREENSHOTS=1 when running npm run demo:qa. Ordinary local/CI runs write screenshots to ignored test-results/, leaving the reviewed portfolio images unchanged.

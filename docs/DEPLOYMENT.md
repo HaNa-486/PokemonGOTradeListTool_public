@@ -4,7 +4,7 @@ The default deliverable is a local, synthetic-data application. This repository 
 
 ## Local demo
 
-Use Node.js 24, npm, Python 3.12, and Git. Start from an unbound checkout without `.env`, `.env.local`, `.dev.vars`, or `dist/server/.dev.vars`; the demo refuses these configuration files and a hosting manifest with a project ID. The first install may take several minutes. Install locked dependencies and the browser, then build:
+Use Node.js 24, npm, Python 3.12, and Git. Start from an unbound checkout. The demo refuses a hosting manifest with a project ID and any file beginning with `.env` (except `.env.example`) or `.dev.vars` in the repository root or `dist/server/`. This includes environment-specific configuration such as `.env.local`. The first install may take several minutes. Install locked dependencies and the browser, then build:
 
 ```sh
 npm ci
@@ -16,6 +16,8 @@ npm run demo:setup
 ```
 
 Keep `npm run demo:start` running in one terminal. In another terminal, run `npm run demo:open` for two isolated synthetic users. Keep its terminal open; pressing Enter closes both windows. Alternatively, `npm run demo:qa` runs the automated browser journey and closes its own contexts when finished.
+
+For both automated browser journeys, stop any existing demo server and run `npm run demo:ci` after the same build and one-time setup. It requires port 8787 to be free, starts its own local server, and closes only its own processes when finished. Both automated journeys write disposable synthetic records to the demo database.
 
 The server is restricted to `https://127.0.0.1:8787` and local persistence. Browser automation uses the local development certificate only for its isolated loopback contexts. Do not disable TLS verification globally.
 

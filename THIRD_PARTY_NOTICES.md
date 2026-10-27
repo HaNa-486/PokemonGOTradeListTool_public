@@ -16,7 +16,7 @@ The application uses React, Vinext/Vite, Cloudflare tooling, Zod, and other depe
 
 ## Dataset scope
 
-`data/catalog.json` is the original **trade-ledger-demo** dataset. The six fictional species, names, form labels, and demonstration rules were created for this project. They are offered under the root MIT license.
+`data/demo-catalog.json` is the original **trade-ledger-demo** dataset. The six fictional species, names, form labels, and demonstration rules were created for this project. They are offered under the root MIT license.
 
 This edition does not distribute the original private application's real-game catalog, PokeMiners dumps or mined translations, PokéAPI-derived species tables, game artwork, sounds, or models. A name in the repository URL is not a license to redistribute game content.
 

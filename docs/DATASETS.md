@@ -8,7 +8,7 @@ The bundled dataset is **trade-ledger-demo**, version **1.0.0**. It is original 
 | 10002 | 燈芽 | Lamplume | Shared `folded-light` family with Paperwing |
 | 10003 | 霧瓶 | Mistvial | Explicit `CLOUD_SAIL` special form |
 | 10004 | 錨星 | Anchorstar | A known non-tradable species |
-| 10005 | 鈴砂 | Chimesand | Blocked `FUSED` form and an unknown form |
+| 10005 | 鈴砂 | Chimesand | Blocked `SEALED_BELL` form and an unknown form |
 | 10006 | 織雲 | Loomcloud | Additional independent inventory |
 
 These values exercise rules. They are not claims about any real game or creatures. The original names, labels, and rule fixtures are covered by the root [MIT license](../LICENSE).
@@ -25,6 +25,13 @@ The contract is implemented in [core/catalog-schema.ts](../core/catalog-schema.t
 - `items`: stable numeric-string IDs, Traditional Chinese and English labels, aliases, family identifiers, nullable trade status, and explicitly identified form/costume options.
 - `kind`: `synthetic` for the original demo, `external` for a separately supplied catalog.
 - `contentHash`: SHA-256 of UTF-8 `JSON.stringify(validatedPack.items)`, after schema validation. See [prepare-catalog.mts](../scripts/prepare-catalog.mts) for the exact validation and hash comparison. A hash-mismatch error reports the expected normalized-items digest; update it only after reviewing the intended content. A matching hash proves consistency, not provenance or permission.
+
+Variant constraints are part of the validated contract:
+
+- Species IDs are unique. Each form/costume list has unique variant IDs, and a variant ID reused elsewhere in the pack must keep the same label.
+- Every species includes the explicit costume `NONE` with the label `無裝扮`. `NONE` cannot be a form. The built-in form `STANDARD`, if present, must retain the label `標準形態`.
+- `custom:*` is reserved for circle-defined variants. Condition and business-state IDs such as `UNKNOWN`, `ANY`, `true`, `false`, `NORMAL`, and `SHADOW` cannot become catalog variants. The schema contains the complete reserved set.
+- A pack contains 1–10,000 species; IDs are positive numeric strings of at most nine digits. Each species has 1–200 forms and at most 200 costumes. Unknown trade eligibility is represented by `tradable: null`, not a variant named UNKNOWN.
 
 Stable IDs are references from listings and historical plans, not array positions. Variant meaning must not be inferred from a display label. UNKNOWN is a condition state, not a catalog variant ID; `tradable: null` means unknown and must not be relabeled false or true without evidence.
 
