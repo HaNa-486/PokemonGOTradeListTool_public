@@ -4,7 +4,7 @@ Trade Ledger handles private membership, delegated access, inventory, and exchan
 
 ## Report a vulnerability privately
 
-If GitHub private vulnerability reporting is enabled, use [Security → Advisories](https://github.com/HaNa-486/PokemonGOTradeListTool_public/security/advisories) and choose **Report a vulnerability**. This document does not assert that the repository setting has already been enabled.
+Use [Security → Advisories](https://github.com/HaNa-486/PokemonGOTradeListTool_public/security/advisories) and choose **Report a vulnerability**. GitHub private vulnerability reporting was enabled and verified for this repository on 2026-10-28.
 
 If the private button is unavailable, use an existing private contact channel with the maintainer. If none is available, wait for a private channel rather than posting exploit details publicly. The maintainer must provide a working private reporting route before inviting public security reports.
 
