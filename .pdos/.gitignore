@@ -1,0 +1,11 @@
+# Local or sensitive PDOS working material
+private/
+local/
+
+# Secret-bearing files never belong in shared PDOS state
+.env
+.env.*
+*.key
+*.pem
+*.p12
+*.secret

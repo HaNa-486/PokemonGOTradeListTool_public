@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Fork contributions run without production credentials or repository write access.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      CI: 'true'
+      SITES_CHATGPT_AUTH: disabled
+      CLOUDFLARE_CF_FETCH_ENABLED: 'false'
+      WRANGLER_SEND_METRICS: 'false'
+      SHARP_IGNORE_GLOBAL_LIBVIPS: '1'
+    steps:
+      - name: Check out source and reachable history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Verify repository safety guard
+        run: python scripts/test-repository-safety.py
+      - name: Check source, index and reachable history for sensitive files and known secrets
+        run: python scripts/check-repository-safety.py --history
+      - name: Verify publication and incremental export isolation
+        run: python scripts/test-public-sync.py
+      - name: Check public content including reachable history
+        run: python scripts/check-public-content.py --history
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Install locked dependencies
+        run: npm ci --include=dev --include=optional
+      - name: Reject known high or critical dependency vulnerabilities
+        run: npm audit --audit-level=high
+      - name: Check types
+        run: npm run typecheck
+      - name: Test ledger, authorization and concurrency
+        run: npm test
+      - name: Build without deploying
+        run: npm run build
+      - name: Install local browser runtime
+        run: npx playwright install --with-deps chromium
+      - name: Create isolated synthetic demo
+        run: npm run demo:setup
+      - name: Exercise mobile browser journeys against local D1
+        run: node scripts/run-demo-ci.mjs
+
+# No deployment, cloud database access, secrets, uploads or privileged PR trigger.

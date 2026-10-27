@@ -1,0 +1,169 @@
+{
+  "schemaVersion": 1,
+  "datasetId": "trade-ledger-demo",
+  "version": "1.0.0",
+  "kind": "synthetic",
+  "title": "自製示範目錄 / Original demo catalog",
+  "license": "MIT",
+  "source": "Independently authored fictional entries for this project. No game dataset, translations, characters or extracted files were used.",
+  "contentHash": "3371f75ee8290053954494cf4e76d63136c1ed473f31096b37310b0a2658144c",
+  "items": [
+    {
+      "id": "10001",
+      "zh": "紙翼",
+      "en": "Paperwing",
+      "alias": "",
+      "family": "folded-light",
+      "tradable": true,
+      "forms": [
+        {
+          "id": "STANDARD",
+          "label": "標準形態",
+          "tradable": true
+        }
+      ],
+      "costumes": [
+        {
+          "id": "NONE",
+          "label": "無裝扮",
+          "tradable": true
+        },
+        {
+          "id": "PAPER_RIBBON",
+          "label": "摺紙緞帶",
+          "tradable": true
+        },
+        {
+          "id": "INK_CROWN",
+          "label": "墨點冠",
+          "tradable": null
+        }
+      ]
+    },
+    {
+      "id": "10002",
+      "zh": "燈芽",
+      "en": "Lamplume",
+      "alias": "",
+      "family": "folded-light",
+      "tradable": true,
+      "forms": [
+        {
+          "id": "STANDARD",
+          "label": "標準形態",
+          "tradable": true
+        }
+      ],
+      "costumes": [
+        {
+          "id": "NONE",
+          "label": "無裝扮",
+          "tradable": true
+        }
+      ]
+    },
+    {
+      "id": "10003",
+      "zh": "霧瓶",
+      "en": "Mistvial",
+      "alias": "",
+      "family": "mist-glass",
+      "tradable": true,
+      "forms": [
+        {
+          "id": "STANDARD",
+          "label": "標準形態",
+          "tradable": true
+        },
+        {
+          "id": "CLOUD_SAIL",
+          "label": "雲帆形態",
+          "tradable": true
+        }
+      ],
+      "costumes": [
+        {
+          "id": "NONE",
+          "label": "無裝扮",
+          "tradable": true
+        }
+      ]
+    },
+    {
+      "id": "10004",
+      "zh": "錨星",
+      "en": "Anchorstar",
+      "alias": "",
+      "family": "anchor-song",
+      "tradable": false,
+      "forms": [
+        {
+          "id": "STANDARD",
+          "label": "標準形態",
+          "tradable": false
+        }
+      ],
+      "costumes": [
+        {
+          "id": "NONE",
+          "label": "無裝扮",
+          "tradable": false
+        }
+      ]
+    },
+    {
+      "id": "10005",
+      "zh": "鈴砂",
+      "en": "Chimesand",
+      "alias": "",
+      "family": "ring-dune",
+      "tradable": true,
+      "forms": [
+        {
+          "id": "STANDARD",
+          "label": "標準形態",
+          "tradable": true
+        },
+        {
+          "id": "SEALED_BELL",
+          "label": "封鈴形態",
+          "tradable": false
+        },
+        {
+          "id": "UNTESTED_CHIME",
+          "label": "待確認形態",
+          "tradable": null
+        }
+      ],
+      "costumes": [
+        {
+          "id": "NONE",
+          "label": "無裝扮",
+          "tradable": true
+        }
+      ]
+    },
+    {
+      "id": "10006",
+      "zh": "織雲",
+      "en": "Loomcloud",
+      "alias": "",
+      "family": "woven-sky",
+      "tradable": null,
+      "forms": [
+        {
+          "id": "STANDARD",
+          "label": "標準形態",
+          "tradable": null
+        }
+      ],
+      "costumes": [
+        {
+          "id": "NONE",
+          "label": "無裝扮",
+          "tradable": null
+        }
+      ]
+    }
+  ]
+}

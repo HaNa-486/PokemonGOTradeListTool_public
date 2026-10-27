@@ -1,0 +1,9 @@
+'use client';
+import {useState} from 'react';
+import {catalog} from '../core/catalog';
+import type {Circle,VariantOption} from '../core/model';
+export function VariantManager({circle,me,items,disabled,run}:{circle:Circle;me:string;items:VariantOption[];disabled:boolean;run:(op:string,p:unknown)=>void}){
+  const [species,setSpecies]=useState(catalog[0].id),[trait,setTrait]=useState('costume'),[name,setName]=useState(''),[search,setSearch]=useState('');
+  const admin=['owner','admin'].includes(circle.members[me]?.role);
+  return <section className="card"><h2>補登自訂裝扮／形態</h2><p>找不到活動裝扮時，在此圈提出補登。管理員核准後才可用於配對；相同名稱仍保留不同 ID。</p><form onSubmit={e=>{e.preventDefault();run('variant.create',{circle:circle.id,species,trait,label:name});}}><label>搜尋物種<input value={search} onChange={e=>setSearch(e.target.value)} placeholder="繁中、English 或編號"/></label><label>物種<select value={species} onChange={e=>setSpecies(e.target.value)}>{catalog.filter(c=>c.id===species||`${c.zh} ${c.en} ${c.id}`.toLowerCase().includes(search.toLowerCase())).map(c=><option key={c.id} value={c.id}>#{c.id} {c.zh}</option>)}</select></label><label>種類<select value={trait} onChange={e=>setTrait(e.target.value)}><option value="costume">裝扮</option><option value="form">形態</option></select></label><label>可辨識名稱<input minLength={2} maxLength={60} required value={name} onChange={e=>setName(e.target.value)} placeholder="包含活動年份、服飾或造型差異"/></label><button disabled={disabled}>提出補登申請</button></form>{items.map(v=><article className="batch" key={v.id}><strong>{catalog.find(c=>c.id===v.species)?.zh} · {v.label}</strong><p>{({pending:'待管理員審核',approved:'已核准',rejected:'未核准'})[v.status]}</p>{admin&&v.status==='pending'&&<div className="actions"><button disabled={disabled} onClick={()=>run('variant.review',{id:v.id,version:v.version,approve:true})}>核准此精確變體</button><button disabled={disabled} onClick={()=>run('variant.review',{id:v.id,version:v.version,approve:false})}>不核准</button></div>}</article>)}</section>;
+}

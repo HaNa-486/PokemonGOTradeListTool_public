@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "managed": [
+    "core/model.ts",
+    "core/replay.ts",
+    "core/visibility.ts",
+    "server/auth.ts",
+    "server/body.ts",
+    "server/matching.ts",
+    "server/moderation.ts",
+    "server/pages.ts",
+    "server/projection.ts",
+    "server/sites-auth.ts"
+  ]
+}
